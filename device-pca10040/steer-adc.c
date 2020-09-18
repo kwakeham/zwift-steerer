@@ -130,9 +130,9 @@ void steering_display_value(void)
 float get_angle(void)
 {
     float steering_angle = 0;
-    if (m_buffer_pool[0] > 8500 || m_buffer_pool[0] < 7500)
+    if (m_buffer_pool[0] > 8200 || m_buffer_pool[0] < 7800)
     {
-        steering_angle = (((m_buffer_pool[0])-8000)*0.0025);
+        steering_angle = (((m_buffer_pool[0])-8000)*0.012);
     }
     else
     {
