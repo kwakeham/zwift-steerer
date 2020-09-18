@@ -123,7 +123,7 @@ void steering_convert(void)
 
 void steering_display_value(void)
 {
-    NRF_LOG_INFO("read: %d, ",  sample);
+    NRF_LOG_INFO("read: 1%d, ",  sample);
 }
 
 
