@@ -70,23 +70,11 @@ static void on_write(ble_cus_t *p_cus, ble_evt_t const *p_ble_evt) {
     }
   }
 
-  // // Check if the Custom value CCCD is written to and that the value is the
-  // // appropriate length, i.e 2 bytes.
-  // if ((p_evt_write->handle == p_cus->custom_value_handles.cccd_handle) &&
-  //     (p_evt_write->len == 2)) {
-  //   // CCCD written, call application event handler
-  //   if (p_cus->evt_handler != NULL) {
-  //     ble_cus_evt_t evt;
-
-  //     if (ble_srv_is_notification_enabled(p_evt_write->data)) {
-  //       evt.evt_type = BLE_CUS_EVT_NOTIFICATION_ENABLED;
-  //     } else {
-  //       evt.evt_type = BLE_CUS_EVT_NOTIFICATION_DISABLED;
-  //     }
-  //     // Call the application event handler.
-  //     p_cus->evt_handler(p_cus, &evt);
-  //   }
-  // }
+	// Custom Value TX Characteristic Written to.
+	if (p_evt_write->handle == p_cus->tx_handles.cccd_handle) {
+		// Seems like the challenge request is now done without request
+		ble_cus_tx_value_update(p_cus, challengeRequest, sizeof(challengeRequest));
+	}
 }
 
 void ble_cus_on_ble_evt(ble_evt_t const *p_ble_evt, void *p_context) {
