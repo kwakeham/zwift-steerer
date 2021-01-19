@@ -93,7 +93,6 @@ void steering_init(void)
 
     err_code = app_timer_start(m_sampling_timer, SAMPLING_INTERVAL, NULL);
     APP_ERROR_CHECK(err_code);
-
 }
 
 void steering_convert(void)

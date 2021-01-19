@@ -9,30 +9,32 @@
 #ifndef STEERING_H
 #define STEERING_H
 
-#include <stdint.h>
-#include <math.h>
 #include <inttypes.h>
+#include <math.h>
+#include <stdint.h>
+
 #include "app_error.h"
 #include "nrfx_saadc.h"
 
 #ifdef __cplusplus
-extern "C" {
+extern "C"
+{
 #endif
+    /**
+     * @brief Init the steer module
+     *
+     */
+    void steering_init(void);
 
-void saadc_callback(nrfx_saadc_evt_t const * p_event);
-
-void steering_init(void);
-
-void steering_convert(void);
-
-void steering_display_value(void);
-
-float get_angle(void);
-
-void saadc_execute(void);
+    /**
+     * @brief Get the angle of the joystick
+     *
+     * @return float angle of joystick
+     */
+    float get_angle(void);
 
 #ifdef __cplusplus
 }
 #endif
 
-#endif // MPOS_H
+#endif  // MPOS_H
