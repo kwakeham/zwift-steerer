@@ -87,6 +87,7 @@
 
 #include "nrf_delay.h"
 #include "steer-adc.h"
+#include "lsm6dsm.h"
 
 #define DEVICE_NAME                                                 \
     "Marl" /**< Name of device. Will be included in the advertising \
@@ -307,10 +308,10 @@ static void notification_timeout_handler(void *p_context)
 {
     UNUSED_PARAMETER(p_context);
     ret_code_t err_code;
-    float      angle = get_angle();
+    float angle = get_angle();
     NRF_LOG_INFO("Float " NRF_LOG_FLOAT_MARKER "", NRF_LOG_FLOAT(angle));
     err_code = ble_cus_steering_value_update(&m_cus, get_angle());
-    // APP_ERROR_CHECK(err_code);
+    APP_ERROR_CHECK(err_code);
 
     // Increment the value of m_custom_value before nortifing it.
     m_custom_value++;
@@ -924,7 +925,11 @@ int main(void)
     buttons_leds_init(&erase_bonds);
     power_management_init();
 
-    steering_init();
+
+    
+    // NRF_LOG_INFO("HI KEITH!");
+
+    // steering_init();
     // steering_convert();
 
     ble_stack_init();
@@ -934,10 +939,13 @@ int main(void)
     advertising_init();
     conn_params_init();
     peer_manager_init();
+    NRF_LOG_FLUSH();
+   
 
     // Start execution.
     NRF_LOG_INFO("Starting Steerer App");
     application_timers_start();
+    lsm6dsm_init();
 
     advertising_start(erase_bonds);
 
@@ -946,6 +954,7 @@ int main(void)
     {
         idle_state_handle();
         app_sched_execute();
+        lsm6dsm_task();
     }
 }
 

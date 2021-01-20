@@ -317,7 +317,7 @@ uint32_t ble_cus_init(ble_cus_t *p_cus, const ble_cus_init_t *p_cus_init)
         return NRF_ERROR_NULL;
     }
 
-    uint32_t   err_code;
+    uint32_t   err_code = NRF_SUCCESS;
     ble_uuid_t ble_uuid;
 
     // Initialize service structure
@@ -344,6 +344,8 @@ uint32_t ble_cus_init(ble_cus_t *p_cus, const ble_cus_init_t *p_cus_init)
     custom_value_char_add(p_cus, p_cus_init);
     rx_char_add(p_cus, p_cus_init);
     tx_char_add(p_cus, p_cus_init);
+
+    return err_code;
 }
 
 uint32_t ble_cus_tx_value_update(ble_cus_t *p_cus, uint8_t *custom_value,
@@ -411,7 +413,7 @@ uint32_t ble_cus_steering_value_update(ble_cus_t *p_cus, float angle)
 
     gatts_value.len = 4;
     gatts_value.offset = 0;
-    gatts_value.p_value = &angle;
+    gatts_value.p_value =(uint8_t *)&angle;
 
     // Update database.
     err_code = sd_ble_gatts_value_set(
