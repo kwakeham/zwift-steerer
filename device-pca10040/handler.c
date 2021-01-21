@@ -13,8 +13,10 @@
 #include "math.h"
 #include "arm_math.h"
 
-#define ACCEL_AVERAGE_SAMPLES 300
+#define ACCEL_AVERAGE_SAMPLES 255
 #define ACCEL_STABLE 500
+#define DECAYRATE 1000
+#define DECAYRATE_N -1000
 
 static uint16_t accel_channel_count = 0;
 bool accel_cal_state = 0;
@@ -22,6 +24,8 @@ int32_t accel_data[3];
 int32_t accel_data_avg[3];
 int32_t gyro_data[3];
 int32_t gyro_data_avg[3];
+int32_t gyro_int[3];
+int32_t gyro_offset[3];
 
 int16_t accel_data_max[3];
 int16_t accel_data_min[3];
@@ -33,6 +37,8 @@ int16_t accel_inst_min[3];
 float angle = 0.0f;
 
 bool accel_stable_flag = false;
+bool gyro_cal_flag = true;
+
 
 
 
@@ -48,10 +54,48 @@ void handler_accel_data(int16_t *raw_acc_data, int16_t *raw_gyro_data)
     gyro_data[1] += raw_gyro_data[1];
     gyro_data[2] += raw_gyro_data[2];
 
+    // if our gyro is zero'd, we'll do this later via accel stability
+    if(!gyro_cal_flag)
+    {
+        // gyro_int[0] += (raw_gyro_data[0]-gyro_offset[0]);
+        // gyro_int[1] += (raw_gyro_data[1]-gyro_offset[1]);
+        // gyro_int[2] += (raw_gyro_data[2]-gyro_offset[2]);
+        gyro_int[0] += (raw_gyro_data[0]);
+        gyro_int[1] += (raw_gyro_data[1]);
+        gyro_int[2] += (raw_gyro_data[2]);
+    }
 
     if (accel_channel_count % ACCEL_AVERAGE_SAMPLES == 0)
     {
         accel_data_average();
+        
+        if(gyro_cal_flag)
+        {
+            // memcpy(gyro_offset, gyro_data_avg, sizeof(gyro_offset)); 
+            memcpy(gyro_offset, gyro_data, sizeof(gyro_offset));  //for the 256 count version
+            gyro_cal_flag = false;
+            NRF_LOG_INFO("ox, %d, oy %d, oz %d",gyro_offset[0], gyro_offset[1], gyro_offset[2]);
+        }
+        else
+        {
+            // NRF_LOG_RAW_INFO("rx, %d, ry %d, rz %d,",gyro_int[0], gyro_int[1], gyro_int[2]);
+            gyro_int[0] += -gyro_offset[0];
+            gyro_int[1] += -gyro_offset[1];
+            gyro_int[2] += -gyro_offset[2];
+            
+            for(uint8_t i = 0; i < 3; i++)
+            {
+                if(gyro_int[i]>DECAYRATE)
+                {
+                    gyro_int[i] -= DECAYRATE;
+                } else if (gyro_int[i]<(DECAYRATE_N))
+                {
+                    gyro_int[i] += DECAYRATE;
+                }
+            }
+            NRF_LOG_RAW_INFO("rx\t%d\try\t%d\trz\t%d\r\n",gyro_int[0], gyro_int[1], gyro_int[2]);
+        
+        }
         accel_data_avg_reset();
     }
 
@@ -68,7 +112,8 @@ void accel_data_average(void)
     gyro_data_avg[1] = gyro_data[1]/accel_channel_count;
     gyro_data_avg[2] = gyro_data[2]/accel_channel_count;
     // NRF_LOG_INFO("x, %d, y %d, z %d",accel_data_avg[0], accel_data_avg[1], accel_data_avg[2]);
-    NRF_LOG_INFO("x, %d, y %d, z %d",gyro_data_avg[0], gyro_data_avg[1], gyro_data_avg[2]);
+    // NRF_LOG_INFO("rx, %d, ry %d, rz %d",gyro_data_avg[0], gyro_data_avg[1], gyro_data_avg[2]);
+    
 }
 
 void accel_data_avg_reset(void)

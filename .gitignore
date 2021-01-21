@@ -5,3 +5,5 @@ MyFile.txt
 parser/logs.log
 parser/parser.py
 parser/tester.py
+device-pca10040/logs/gyro_2021-01-20_1854.txt
+device-pca10040/logs/gyro_2021-01-20_1930.txt

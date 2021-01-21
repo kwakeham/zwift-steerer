@@ -10,7 +10,11 @@
  * 
  */
 
-// #define NRF_LOG_MODULE_NAME LSM6DSM
+#ifndef LSM6DSM_LOG_ENABLED
+#define LSM6DSM_LOG_ENABLED 1
+#endif
+
+#define NRF_LOG_MODULE_NAME LSM6DSM
 
 #include "boards.h"
 #include "nrf_assert.h"
@@ -21,11 +25,11 @@
 #include "nrf_drv_gpiote.h"
 #include "handler.h"
 
-// NRF_LOG_MODULE_REGISTER();
+NRF_LOG_MODULE_REGISTER();
 
 #include "lsm6dsm.h"
 
-#define SPI_SLEEP
+// #define SPI_SLEEP
 
 uint32_t *spi_lsm6_base_address;
 bool spim_lsm6_xfer_done = true;
@@ -207,28 +211,23 @@ void lsm6dsm_start()
     // _inst.acc_sensitivity  = 16;
     lsm6dsm_write_register_confirm(LSM6DSM_CTRL1_XL, (LSM6DSM_AODR_1660Hz << 4) | (LSM6DSM_AFS_2G<<2));
     // lsm6dsm_write_register_confirm(LSM6DSM_CTRL1_XL, (LSM6DSM_AODR_12_5Hz << 4) | (LSM6DSM_AFS_2G<<2));
-    NRF_LOG_FLUSH();
 
     //Set gyro_sensitivity
     // _inst.gyro_sensitivity = 2000;
     lsm6dsm_write_register_confirm(LSM6DSM_CTRL2_G, (LSM6DSM_GODR_1660Hz << 4) | (LSM6DSM_GFS_2000DPS<<2));
     //  lsm6dsm_write_register_confirm(LSM6DSM_CTRL2_G, (LSM6DSM_GODR_12_5Hz << 4) | (LSM6DSM_GFS_2000DPS<<2));
-    NRF_LOG_FLUSH();
 
     // NRF_LOG_PROCESS();
     // enable block update (bit 6 = 1), auto-increment registers (bit 2 = 1)
     lsm6dsm_write_register_confirm(LSM6DSM_CTRL3_C, 0x40 | 0x04);
-    NRF_LOG_FLUSH();
 
     // enable accel LP2 (bit 7 = 1), set LP2 tp ODR/9 (bit 6 = 1), enable input_composite (bit 3) for low noise
     //Keith note: this is probably fine for now for testing
     lsm6dsm_write_register_confirm(LSM6DSM_CTRL8_XL, 0x80 | 0x40 | 0x08 );
 
-    NRF_LOG_FLUSH();
     // interrupt handling
     // latch interrupt until data read
     lsm6dsm_write_register_confirm(LSM6DSM_DRDY_PULSE_CFG, 0x80); 
-    NRF_LOG_FLUSH();
 
     // enable accel/gyro interrupts on INT1
     lsm6dsm_write_register_confirm(LSM6DSM_INT1_CTRL, 0x03);
